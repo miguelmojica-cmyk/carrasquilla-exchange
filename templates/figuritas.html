@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">⚽ Catálogo de Figuritas</h2>
+
+<form method="GET" class="mb-4">
+    <div class="input-group" style="max-width: 400px;">
+        <input type="text" name="q" class="form-control" placeholder="Buscar jugador..." value="{{ busqueda }}">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+</form>
+
+{% if figuritas|length == 0 %}
+    <div class="alert alert-info">
+        No se encontraron figuritas.
+    </div>
+{% else %}
+    <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
+        {% for f in figuritas %}
+        <div class="col">
+            <a href="{{ url_for('detalle_figurita', id=f.id) }}" class="text-decoration-none text-dark">
+                <div class="card h-100 shadow-sm text-center">
+                    {% if f.imagen_url %}
+                        <img src="{{ url_for('static', filename='figuritas/' + f.imagen_url) }}" class="card-img-top" style="height: 150px; object-fit: contain; background-color: #f0f0f0;">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center bg-light" style="height: 150px;">
+                            <span class="fs-1">⚽</span>
+                        </div>
+                    {% endif %}
+                    <div class="card-body p-2">
+                        <p class="mb-0 small text-muted">#{{ f.numero }} {% if f.tipo == 'especial' %}⭐{% endif %}</p>
+                        <p class="mb-0 fw-bold small">{{ f.nombre_jugador }}</p>
+                        <p class="mb-0 small text-muted">{{ f.pais }}</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

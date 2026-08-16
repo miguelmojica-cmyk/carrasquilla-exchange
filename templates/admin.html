@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">⚙️ Panel de Administración</h2>
+
+<!-- Agregar Figurita -->
+<div class="card shadow-sm mb-5">
+    <div class="card-body">
+        <h5 class="fw-bold mb-3">➕ Agregar Figurita</h5>
+        <form method="POST" action="{{ url_for('agregar_figurita') }}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Número</label>
+                    <input type="text" name="numero" class="form-control" required>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">Tipo</label>
+                    <select name="tipo" class="form-select">
+                        <option value="normal">Normal</option>
+                        <option value="especial">Especial ⭐</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Nombre del Jugador</label>
+                    <input type="text" name="nombre_jugador" class="form-control" required>
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label class="form-label">País</label>
+                    <input type="text" name="pais" class="form-control" required>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Imagen de la figurita</label>
+                    <input type="file" name="imagen" class="form-control" accept=".png,.jpg,.jpeg">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Agregar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Lista de Figuritas -->
+<div class="card shadow-sm mb-5">
+    <div class="card-body">
+        <h5 class="fw-bold mb-3">⚽ Figuritas Registradas ({{ figuritas|length }})</h5>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Tipo</th>
+                        <th>Jugador</th>
+                        <th>País</th>
+                        <th>Imagen</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-figuritas">
+                    {% for f in figuritas %}
+                    <tr class="fila-figurita {% if loop.index > 5 %}d-none{% endif %}">
+                        <td>{{ f.numero }}</td>
+                        <td>{% if f.tipo == 'especial' %}⭐ Especial{% else %}Normal{% endif %}</td>
+                        <td>{{ f.nombre_jugador }}</td>
+                        <td>{{ f.pais }}</td>
+                        <td>
+                            {% if f.imagen_url %}
+                                <img src="{{ url_for('static', filename='figuritas/' + f.imagen_url) }}" height="40">
+                            {% else %}
+                                Sin imagen
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('eliminar_figurita', id=f.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta figurita?')">
+                                Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if figuritas|length > 5 %}
+        <button type="button" id="btn-mas-figuritas" class="btn btn-sm btn-outline-secondary" onclick="mostrarMas('figuritas')">Mostrar más ({{ figuritas|length - 5 }})</button>
+        <button type="button" id="btn-menos-figuritas" class="btn btn-sm btn-outline-secondary d-none" onclick="mostrarMenos('figuritas')">Mostrar menos</button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Lista de Usuarios -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="fw-bold mb-3">👥 Usuarios Registrados ({{ usuarios|length }})</h5>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-usuarios">
+                    {% for u in usuarios %}
+                    <tr class="fila-usuario {% if loop.index > 5 %}d-none{% endif %}">
+                        <td>{{ u.id }}</td>
+                        <td>{{ u.nombre }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.rol }}</td>
+                        <td>
+                            {% if u.activo %}
+                                <span class="badge bg-success">Activo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('toggle_usuario', id=u.id) }}" class="btn btn-sm btn-outline-secondary">
+                                {% if u.activo %}Desactivar{% else %}Activar{% endif %}
+                            </a>
+                            <a href="{{ url_for('eliminar_usuario', id=u.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Seguro que quieres eliminar este usuario? Esta acción no se puede deshacer.')">
+                                Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if usuarios|length > 5 %}
+        <button type="button" id="btn-mas-usuarios" class="btn btn-sm btn-outline-secondary" onclick="mostrarMas('usuarios')">Mostrar más ({{ usuarios|length - 5 }})</button>
+        <button type="button" id="btn-menos-usuarios" class="btn btn-sm btn-outline-secondary d-none" onclick="mostrarMenos('usuarios')">Mostrar menos</button>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function mostrarMas(tipo) {
+    const filas = document.querySelectorAll('.fila-' + tipo.slice(0, -1));
+    filas.forEach(fila => fila.classList.remove('d-none'));
+    document.getElementById('btn-mas-' + tipo).classList.add('d-none');
+    document.getElementById('btn-menos-' + tipo).classList.remove('d-none');
+}
+
+function mostrarMenos(tipo) {
+    const filas = document.querySelectorAll('.fila-' + tipo.slice(0, -1));
+    filas.forEach((fila, index) => {
+        if (index >= 5) fila.classList.add('d-none');
+    });
+    document.getElementById('btn-menos-' + tipo).classList.add('d-none');
+    document.getElementById('btn-mas-' + tipo).classList.remove('d-none');
+    document.getElementById('tabla-' + tipo).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+{% endblock %}

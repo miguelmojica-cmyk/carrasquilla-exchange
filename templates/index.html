@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="fw-bold display-5">⚽ Carrasquilla Exchange</h1>
+    <p class="lead text-muted mt-3">La plataforma para intercambiar figuritas del Mundial 2026</p>
+
+    {% if current_user.is_authenticated %}
+        <div class="mt-4">
+            <h4>Bienvenido, {{ current_user.nombre }} 👋</h4>
+            <a href="{{ url_for('figuritas') }}" class="btn btn-primary mt-2">Ver figuritas disponibles</a>
+        </div>
+    {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('auth.registro') }}" class="btn btn-primary me-2">Crear cuenta</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">Iniciar sesión</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 text-center">
+        <div class="card p-3 shadow-sm">
+            <h5>🔒 Seguro</h5>
+            <p class="text-muted">Contraseñas cifradas y protección contra ataques web.</p>
+        </div>
+    </div>
+    <div class="col-md-4 text-center">
+        <div class="card p-3 shadow-sm">
+            <h5>🔄 Intercambios</h5>
+            <p class="text-muted">Propone intercambios directos con otros coleccionistas.</p>
+        </div>
+    </div>
+    <div class="col-md-4 text-center">
+        <div class="card p-3 shadow-sm">
+            <h5>⚽ Catálogo</h5>
+            <p class="text-muted">Explora las figuritas oficiales y las que publican otros usuarios.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

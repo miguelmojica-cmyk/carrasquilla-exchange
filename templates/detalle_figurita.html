@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<a href="{{ url_for('figuritas') }}" class="btn btn-sm btn-outline-secondary mb-3">← Volver al catálogo</a>
+
+<div class="row">
+    <!-- Ficha oficial -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            {% if figurita.imagen_url %}
+                <img src="{{ url_for('static', filename='figuritas/' + figurita.imagen_url) }}" class="card-img-top" style="height: 280px; object-fit: contain; background-color: #f0f0f0;">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center bg-light" style="height: 280px;">
+                    <span class="display-1">⚽</span>
+                </div>
+            {% endif %}
+            <div class="card-body text-center">
+                <span class="badge bg-dark mb-2">Ficha Oficial</span>
+                <h4 class="fw-bold">{{ figurita.nombre_jugador }}</h4>
+                <p class="text-muted mb-1">{{ figurita.pais }}</p>
+                <p class="mb-0">#{{ figurita.numero }} {% if figurita.tipo == 'especial' %}⭐ Especial{% endif %}</p>
+            </div>
+        </div>
+
+        {% if current_user.is_authenticated %}
+        <div class="card shadow-sm mt-3">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">📤 Publicar mi figurita</h6>
+                <form method="POST" action="{{ url_for('publicar_figurita', id=figurita.id) }}" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-2">
+                        <label class="form-label small">Tipo de oferta</label>
+                        <select name="tipo" class="form-select form-select-sm" required>
+                            <option value="venta">Venta</option>
+                            <option value="intercambio">Intercambio</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Precio (solo si es venta)</label>
+                        <input type="number" step="0.01" name="precio" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Descripción</label>
+                        <textarea name="descripcion" class="form-control form-control-sm" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small">Foto de tu figurita</label>
+                        <input type="file" name="imagen" class="form-control form-control-sm" accept=".png,.jpg,.jpeg" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm w-100">Publicar</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Publicaciones de usuarios -->
+    <div class="col-md-8">
+        <h5 class="fw-bold mb-3">👥 Disponibles por usuarios ({{ publicaciones|length }})</h5>
+
+        {% if publicaciones|length == 0 %}
+            <div class="alert alert-info">
+                Todavía nadie ha publicado esta figurita. ¡Sé el primero!
+            </div>
+        {% else %}
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                {% for p in publicaciones %}
+                <div class="col">
+                    <a href="{{ url_for('detalle_publicacion', id=p.id) }}" class="text-decoration-none text-dark">
+                        <div class="card shadow-sm h-100">
+                            <div class="row g-0">
+                                <div class="col-4">
+                                    {% if p.imagen_url %}
+                                        <img src="{{ url_for('static', filename='publicaciones/' + p.imagen_url) }}" class="img-fluid rounded-start h-100" style="object-fit: contain; background-color: #f0f0f0;">
+                                    {% else %}
+                                        <div class="d-flex align-items-center justify-content-center bg-light h-100">
+                                            <span class="fs-2">📷</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-8">
+                                    <div class="card-body py-2">
+                                        <span class="badge {% if p.tipo == 'venta' %}bg-success{% else %}bg-info{% endif %} mb-1">
+                                            {% if p.tipo == 'venta' %}💰 Venta{% else %}🔄 Intercambio{% endif %}
+                                        </span>
+                                        {% if p.tipo == 'venta' and p.precio %}
+                                            <p class="mb-1 fw-bold">${{ p.precio }}</p>
+                                        {% endif %}
+                                        <p class="mb-1 small text-muted">Por: {{ p.vendedor.nombre }}</p>
+                                        {% if p.descripcion %}
+                                            <p class="mb-0 small">{{ p.descripcion }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

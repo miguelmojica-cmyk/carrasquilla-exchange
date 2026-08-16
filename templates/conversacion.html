@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<a href="{{ url_for('mensajes') }}" class="btn btn-sm btn-outline-secondary mb-3">← Volver a Mis Mensajes</a>
+
+<h4 class="fw-bold mb-3">💬 {{ otro.nombre }}</h4>
+
+{% if publicacion %}
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2 d-flex align-items-center gap-3">
+        {% if publicacion.imagen_url %}
+            <img src="{{ url_for('static', filename='publicaciones/' + publicacion.imagen_url) }}" style="width: 50px; height: 50px; object-fit: contain; background-color: #f0f0f0;">
+        {% endif %}
+        <div>
+            <p class="mb-0 small text-muted">Sobre la figurita:</p>
+            <a href="{{ url_for('detalle_publicacion', id=publicacion.id) }}" class="fw-bold text-decoration-none">
+                {{ publicacion.figurita.nombre_jugador }} — #{{ publicacion.figurita.numero }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body" style="max-height: 450px; overflow-y: auto;">
+        {% for m in mensajes %}
+            {% if m.id_remitente == current_user.id %}
+                <div class="d-flex justify-content-end mb-2">
+                    <div class="bg-primary text-white rounded p-2" style="max-width: 70%;">
+                        <p class="mb-1">{{ m.contenido }}</p>
+                        <small style="opacity: 0.8;">{{ m.fecha.strftime('%d/%m %H:%M') }}</small>
+                    </div>
+                </div>
+            {% else %}
+                <div class="d-flex justify-content-start mb-2">
+                    <div class="bg-light border rounded p-2" style="max-width: 70%;">
+                        <p class="mb-1">{{ m.contenido }}</p>
+                        <small class="text-muted">{{ m.fecha.strftime('%d/%m %H:%M') }}</small>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('enviar_mensaje_conversacion', otro_id=otro.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="input-group">
+        <input type="text" name="contenido" class="form-control" placeholder="Escribe un mensaje..." required>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </div>
+</form>
+{% endblock %}

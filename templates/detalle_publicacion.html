@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<a href="{{ url_for('detalle_figurita', id=publicacion.id_figurita) }}" class="btn btn-sm btn-outline-secondary mb-3">← Volver a la figurita</a>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            {% if publicacion.imagen_url %}
+                <img src="{{ url_for('static', filename='publicaciones/' + publicacion.imagen_url) }}" class="card-img-top" style="height: 320px; object-fit: contain; background-color: #f0f0f0;">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center bg-light" style="height: 320px;">
+                    <span class="display-1">📷</span>
+                </div>
+            {% endif %}
+            <div class="card-body">
+                <span class="badge {% if publicacion.tipo == 'venta' %}bg-success{% else %}bg-info{% endif %} mb-2">
+                    {% if publicacion.tipo == 'venta' %}💰 Venta{% else %}🔄 Intercambio{% endif %}
+                </span>
+                <h4 class="fw-bold">{{ publicacion.figurita.nombre_jugador }} — #{{ publicacion.figurita.numero }}</h4>
+                {% if publicacion.tipo == 'venta' and publicacion.precio %}
+                    <p class="fs-5 fw-bold">${{ publicacion.precio }}</p>
+                {% endif %}
+                {% if publicacion.descripcion %}
+                    <p>{{ publicacion.descripcion }}</p>
+                {% endif %}
+                <p class="text-muted">Publicado por: <strong>{{ publicacion.vendedor.nombre }}</strong></p>
+
+                {% if current_user.is_authenticated %}
+                    {% if current_user.id != publicacion.id_usuario %}
+                        <hr>
+                        <h6 class="fw-bold">✉️ Enviar mensaje a {{ publicacion.vendedor.nombre }}</h6>
+                        <form method="POST" action="{{ url_for('enviar_mensaje', id_publicacion=publicacion.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="mb-2">
+                                <textarea name="contenido" class="form-control" rows="3" placeholder="Escribe tu mensaje..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-secondary mt-3">Esta es tu propia publicación.</div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info mt-3">
+                        <a href="{{ url_for('auth.login') }}">Inicia sesión</a> para enviar un mensaje sobre esta figurita.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
