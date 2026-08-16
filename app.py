@@ -18,7 +18,8 @@ app.config['WTF_CSRF_SSL_STRICT'] = False
 app.config['WTF_CSRF_TIME_LIMIT'] = None
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024
 
-UPLOAD_FOLDER = os.path.join('static', 'figuritas')
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'figuritas')
+PUBLICACIONES_FOLDER = os.path.join(app.root_path, 'static', 'publicaciones')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 def extension_permitida(filename):
@@ -72,7 +73,7 @@ def publicar_figurita(id):
     if archivo and archivo.filename != '':
         if extension_permitida(archivo.filename):
             nombre_archivo = secure_filename(f"pub_{current_user.id}_{id}_{archivo.filename}")
-            archivo.save(os.path.join('static', 'publicaciones', nombre_archivo))
+            archivo.save(os.path.join(PUBLICACIONES_FOLDER, nombre_archivo))
         else:
             flash('Formato de imagen no permitido. Usa PNG, JPG o JPEG.', 'danger')
             return redirect(url_for('detalle_figurita', id=id))
