@@ -23,7 +23,7 @@ def probar_sqli_login():
         r = requests.post(BASE_URL + "/login", data={
             "email": payload,
             "contrasena": "123456"
-        }, allow_redirects=False)
+        }, allow_redirects=False, timeout=5)
 
         location = r.headers.get("Location", "")
         vulnerable = "/login" not in location and r.status_code in (301, 302)
@@ -41,7 +41,7 @@ def probar_xss_registro():
             "nombre": payload,
             "email": email,
             "contrasena": "12345678"
-        }, allow_redirects=False)
+        }, allow_redirects=False, timeout=5)
 
         estado = "Registrado como texto plano (protegido por Jinja2)"
         print("Payload:", payload, "->", estado)

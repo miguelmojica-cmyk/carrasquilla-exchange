@@ -254,6 +254,7 @@ def archivo_muy_grande(e):
 
 if __name__ == '__main__':
     debug_mode = os.environ.get('FLASK_DEBUG', 'False') == 'True'
+    host_config = os.environ.get('HOST', '127.0.0.1')
     with app.app_context():
         db.create_all()
-    app.run(debug=debug_mode, host='0.0.0.0')
+    app.run(debug=debug_mode, host=host_config)  # nosec B104 - host controlado por variable de entorno, 127.0.0.1 por defecto
