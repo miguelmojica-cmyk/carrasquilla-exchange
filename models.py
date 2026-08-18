@@ -14,6 +14,8 @@ class Usuario(UserMixin, db.Model):
     saldo = db.Column(db.Float, default=50.0)
     activo = db.Column(db.Boolean, default=True)
     fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+    intentos_fallidos = db.Column(db.Integer, default=0)
+    bloqueado_hasta = db.Column(db.DateTime, nullable=True)
 
     publicaciones = db.relationship('Publicacion', backref='vendedor', lazy=True)
     transacciones_enviadas = db.relationship('Transaccion', foreign_keys='Transaccion.id_comprador', backref='comprador', lazy=True)

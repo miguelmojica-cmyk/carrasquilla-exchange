@@ -29,6 +29,18 @@ cursor.execute("""
 """)
 print("[OK] Tabla 'mensajes' verificada/creada.")
 
+try:
+    cursor.execute("ALTER TABLE usuarios ADD COLUMN intentos_fallidos INTEGER DEFAULT 0")
+    print("[OK] Columna 'intentos_fallidos' agregada a usuarios.")
+except sqlite3.OperationalError:
+    print("[SKIP] Columna 'intentos_fallidos' ya existía.")
+
+try:
+    cursor.execute("ALTER TABLE usuarios ADD COLUMN bloqueado_hasta DATETIME")
+    print("[OK] Columna 'bloqueado_hasta' agregada a usuarios.")
+except sqlite3.OperationalError:
+    print("[SKIP] Columna 'bloqueado_hasta' ya existía.")
+
 conn.commit()
 conn.close()
 print("Migración completada.")
